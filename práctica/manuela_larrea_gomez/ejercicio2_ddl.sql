@@ -8,7 +8,7 @@ go
 /* Table: Comunidad                                             */
 /*==============================================================*/
 create table Comunidad (
-   id_ccaa              int                  identity,
+   id_ccaa              int                  not null,
    ccaa                 nvarchar(40)         not null,
    constraint PK_COMUNIDAD primary key (id_ccaa)
 )
@@ -19,57 +19,32 @@ go
 /* Table: "Provincia"                                           */
 /*==============================================================*/
 create table Provincia (
-   id_provincia         int                  identity,
+   id_provincia         int                  not null,
    provincia            nvarchar(40)         not null,
    id_ccaa              int                  not null,
    constraint PK_PROVINCIA primary key (id_provincia)
 )
 go
 
-/*==============================================================*/
-/* Junction Table: ProvinciaVia                                 */
-/*==============================================================*/
-create table ProvinciaVia (
-   id                   int                  identity,
-   id_provincia         int                  not null, 
-   id_via               int                  not null, 
-   constraint PK_PROVINCIAVIA primary key (id)
-)
-go
 
 /*==============================================================*/
-/* Index: ProvinciaVia                              */
+/* Table: TipoVia                                               */
 /*==============================================================*/
-create index IndexProvinciaVia on ProvinciaVia(
-id ASC
-)
-go
-
-/*==============================================================*/
-/* Table: Via                                                   */
-/*==============================================================*/
-create table Via (
-   id                   int                  identity,
+create table TipoVia (
    id_tipo_via          nvarchar(1)          not null,
    tipo_via             nvarchar(40)         not null,
-   constraint PK_VIA primary key (id)
+   constraint PK_VIA primary key (id_tipo_via)
 )
 go
 
-/*==============================================================*/
-/* Index: IndexViaId                                            */
-/*==============================================================*/
-create index IndexViaid on Via (
-id ASC
-)
-go
 
 /*==============================================================*/
 /* Table: Accidente                                             */
 /*==============================================================*/
 create table Accidente (
-   id                             int            identity,
-   id_via                         int            not null,
+   id                             int            identity(0,1),
+   id_tipo_via                    nvarchar(1)    not null,
+   id_provincia					  int            not null,
    accidentes_con_victimas        int            not null,
    accidentes_mortales_30_dias    int            not null,
    anio                           int            not null, 
@@ -80,13 +55,6 @@ create table Accidente (
 )
 go
 
-/*==============================================================*/
-/* Index: IndexAccidenteId                                      */
-/*==============================================================*/
-create index IndexVAccidenteid on Accidente (
-id ASC
-)
-go
 
 alter table Provincia
    add constraint FK_PROVINCIA_REFERENCE_COMUNIDAD foreign key (id_ccaa)
@@ -94,16 +62,12 @@ alter table Provincia
 go
 
 alter table Accidente
-   add constraint FK_ACCIDENTE_REFERENCE_VIA foreign key (id_via)
-      references Via (id)
+   add constraint FK_ACCIDENTE_REFERENCE_VIA foreign key (id_tipo_via)
+      references TipoVia (id_tipo_via)
 go
 
-alter table ProvinciaVia
-   add constraint FK_PROVINCIAVIA_REFERENCE_PROVINCIA foreign key (id_provincia)
+
+alter table Accidente
+   add constraint FK_ACCIDENTE_REFERENCE_PROVINCIA foreign key (id_provincia)
       references Provincia (id_provincia)
-go
-
-alter table ProvinciaVia
-   add constraint FK_PROVINCIAVIA_REFERENCE_VIA foreign key (id_via)
-      references Via (id)
 go
